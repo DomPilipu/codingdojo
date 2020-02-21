@@ -11,9 +11,17 @@ namespace round_one
 
 		private static int currentPage { get; set; }
 
+		private static int currentSearchResult = 0;
+
+		private static List<Tuple<int, int>> searchResults { get; set; }
+
 		private static bool continueFlag = true;
 
 		private const int pageSize = 20;
+
+		private static string searchInput { get; set; }
+
+		private static int hitCount { get; set; }
 
         static void Main(string[] args)
 		{
@@ -32,11 +40,27 @@ namespace round_one
 				switch(info.Key) {
 					case ConsoleKey.D7:
 						if(info.KeyChar == '/') {
-							string searchInput = Console.ReadLine();
+							searchInput = Console.ReadLine();
 							searchBook(searchInput);
+
+							if(hitCount > 0) {
+								printWithSearchHighLight();
+							} else {
+								printCurrentPageWithError("Keine Suchtreffer!");
+							}
+							
 						} else {
 							printCurrentPageWithError("Unbekannter Befehl!");
 						}
+						break;
+					case ConsoleKey.N:
+						if(String.IsNullOrEmpty(searchInput)) {
+							printCurrentPageWithError("Keine Suche ausgeführt!");
+						} else {
+							currentSearchResult++;
+							printWithSearchHighLight();
+						}
+						
 						break;
 					case ConsoleKey.G:
 						string jumpInput = Console.ReadLine();
@@ -58,12 +82,44 @@ namespace round_one
 			}			
 		}
 
+		private static void printWithSearchHighLight()
+		{
+			Console.Clear();
+			Tuple<int, int> currentSearchResultTuple = searchResults[currentSearchResult];
+			string[] pageToPrintWithHighLight = pages[currentSearchResultTuple.Item1];
+
+			for(int i = 0; i < pageToPrintWithHighLight.Length; i++) {
+				if(i != currentSearchResultTuple.Item2) {
+					Console.WriteLine(pageToPrintWithHighLight[i]);
+				} else {
+					Console.ForegroundColor = ConsoleColor.Green;
+					Console.WriteLine(pageToPrintWithHighLight[i]);
+					Console.ResetColor();
+				}
+			}
+
+			Console.WriteLine();
+			Console.ForegroundColor = ConsoleColor.Green;
+			Console.WriteLine("Suchergebnis {0} von {1}", currentSearchResult + 1, hitCount);
+			Console.ResetColor();
+		}
+
 		private static void searchBook(string searchInput)
 		{
-			List<int> pagesWithSearchResult = 
+			hitCount = 0;
+			searchResults = new List<Tuple<int, int>>();
 
 			foreach(int key in pages.Keys) {
-
+				string[] page = pages[key];
+				for(int i = 0; i < page.Length; i++) {
+					string line = page[i];
+					if(line != null) {
+						if(line.Contains(searchInput)) {
+							hitCount++;
+							searchResults.Add(Tuple.Create(key, i));
+						}
+					}					
+				}
 			}
 		}
 
@@ -124,7 +180,7 @@ namespace round_one
 					int k = lines.Length - i;
 					Array.Copy(lines, i, page, 0, k);
 					for(int j = 0; i < page.Length; j++) {
-						if(String.IsNullOrEmpty(page[j]) {
+						if(String.IsNullOrEmpty(page[j])) {
 							page[j] = "";
 						}
 					}
