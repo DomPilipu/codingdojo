@@ -13,7 +13,7 @@ namespace round_one
 
 		private static bool continueFlag = true;
 
-		private const int pageSize = 15;
+		private const int pageSize = 20;
 
         static void Main(string[] args)
 		{
@@ -30,6 +30,18 @@ namespace round_one
 				ConsoleKeyInfo info = Console.ReadKey();
 
 				switch(info.Key) {
+					case ConsoleKey.D7:
+						if(info.KeyChar == '/') {
+							string searchInput = Console.ReadLine();
+							searchBook(searchInput);
+						} else {
+							printCurrentPageWithError("Unbekannter Befehl!");
+						}
+						break;
+					case ConsoleKey.G:
+						string jumpInput = Console.ReadLine();
+						jumpToPage(jumpInput);
+						break;
 					case ConsoleKey.B:
 						LastPage();
 						break;
@@ -40,11 +52,41 @@ namespace round_one
 						Close();
 						break;
 					default:
-						printCurrentPage();
-						Console.WriteLine("Unbekannter Befehl");
+						printCurrentPageWithError("Unbekannter Befehl!");
 						break;
 				}
 			}			
+		}
+
+		private static void searchBook(string searchInput)
+		{
+			List<int> pagesWithSearchResult = 
+
+			foreach(int key in pages.Keys) {
+
+			}
+		}
+
+		private static void jumpToPage(string input)
+		{
+			try{
+				int page = Convert.ToInt32(input);
+
+				if(pages.ContainsKey(page)) {
+					currentPage = page;
+					printCurrentPage();
+				} else {
+					printCurrentPageWithError("Angegebene Seitenzahl liegt nicht vor!");
+				}
+			}
+			catch(FormatException) {
+				printCurrentPageWithError("Angegebene Seitenzahl liegt nicht vor!");
+			}			
+		}
+
+		private static void printCurrentPageWithError(string message) {
+			printCurrentPage();
+			printErrorMessage(message);
 		}
 
 		private static void NextPage()
@@ -81,6 +123,11 @@ namespace round_one
 				if(i + pageSize > lines.Length) {
 					int k = lines.Length - i;
 					Array.Copy(lines, i, page, 0, k);
+					for(int j = 0; i < page.Length; j++) {
+						if(String.IsNullOrEmpty(page[j]) {
+							page[j] = "";
+						}
+					}
 				} else {
 					Array.Copy(lines, i, page, 0, pageSize);
 				}				
